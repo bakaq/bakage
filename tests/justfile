@@ -1,10 +1,12 @@
-test:
+test: integration-tests
+
+integration-tests:
     #!/bin/sh
     set -eu
 
     exit_code=0
 
-    for dir in test*/; do
+    for dir in integration/*; do
         if (cd "$dir" && just test); then
             printf "%s\n" "Test in $dir passed"
         else
