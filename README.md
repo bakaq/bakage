@@ -30,6 +30,14 @@ dependencies([
     % A path to a local package
     dependency("test_local", path("./local_package"))
 ]).
+% Optional. Custom search paths for packages.
+% Specify paths to other scryer-manifest.pl files whose package directories
+% should be searched. Bakage will automatically determine where each manifest's
+% packages are located.
+scryer_path([
+    "vendor/scryer-manifest.pl",
+    "libs/other-project/scryer-manifest.pl"
+]).
 
 ```
 

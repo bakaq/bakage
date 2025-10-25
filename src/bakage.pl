@@ -126,6 +126,37 @@ scryer_path(ScryerPath) :-
         append([RootChars, "/scryer_libs"], ScryerPath)
     ).
 
+% Get the current project's manifest (if it exists)
+current_project_manifest(Manifest) :-
+    find_project_root(Root),
+    append([Root, "/scryer-manifest.pl"], ManifestPath),
+    file_exists(ManifestPath),
+    parse_manifest(ManifestPath, Manifest).
+
+% Extract scryer_path/1 terms from manifest (list of manifest file paths)
+manifest_scryer_paths(Manifest, ManifestPaths) :-
+    member(scryer_path(ManifestPaths), Manifest),
+    ManifestPaths = [_|_].
+
+% Given a manifest file path, derive where its packages are located
+manifest_path_to_scryer_libs(ManifestPathChars, ScryerLibsPath) :-
+    join_sep_split(ManifestPathChars, "/", Segments),
+    append(DirSegments, [_ManifestFile], Segments),
+    join_sep_split(DirChars, "/", DirSegments),
+    append([DirChars, "/scryer_libs"], ScryerLibsPath).
+
+% Generate scryer path candidates via backtracking
+scryer_path_candidate(Path) :-
+    getenv("SCRYER_PATH", Path).
+scryer_path_candidate(ScryerLibsPath) :-
+    current_project_manifest(Manifest),
+    manifest_scryer_paths(Manifest, ManifestPaths),
+    member(ManifestPath, ManifestPaths),
+    manifest_path_to_scryer_libs(ManifestPath, ScryerLibsPath).
+scryer_path_candidate(Path) :-
+    find_project_root(RootChars),
+    append([RootChars, "/scryer_libs"], Path).
+
 % the message sent to the user when a dependency is malformed
 user_message_malformed_dependency(D, Error):-
     current_output(Out),
@@ -144,9 +175,10 @@ parse_manifest(Filename, Manifest) :-
 
 package_main_file(Package, PackageMainFile) :-
     atom_chars(Package, PackageChars),
-    scryer_path(ScryerPath),
+    scryer_path_candidate(ScryerPath),
     append([ScryerPath, "/packages/", PackageChars], PackagePath),
     append([PackagePath, "/", "scryer-manifest.pl"], ManifestPath),
+    file_exists(ManifestPath),
     parse_manifest(ManifestPath, Manifest),
     member(main_file(MainFile), Manifest),
     append([PackagePath, "/", MainFile], PackageMainFileChars),
