@@ -157,6 +157,10 @@ scryer_path_candidate(Path) :-
     find_project_root(RootChars),
     append([RootChars, "/scryer_libs"], Path).
 
+% Collect all scryer path candidates into a list
+all_scryer_path_candidates(Paths) :-
+    findall(Path, scryer_path_candidate(Path), Paths).
+
 % the message sent to the user when a dependency is malformed
 user_message_malformed_dependency(D, Error):-
     current_output(Out),
@@ -175,7 +179,8 @@ parse_manifest(Filename, Manifest) :-
 
 package_main_file(Package, PackageMainFile) :-
     atom_chars(Package, PackageChars),
-    scryer_path_candidate(ScryerPath),
+    all_scryer_path_candidates(CandidatePaths),
+    member(ScryerPath, CandidatePaths),
     append([ScryerPath, "/packages/", PackageChars], PackagePath),
     append([PackagePath, "/", "scryer-manifest.pl"], ManifestPath),
     file_exists(ManifestPath),
