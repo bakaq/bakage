@@ -104,19 +104,31 @@ valid_manifest_t(Manifest, Report, Valid) :-
 
     ).
 
+% the message sent to the user when a dependency is malformed
+user_message_malformed_dependency(D, Error):-
+    current_output(Out),
+    phrase_to_stream((portray_clause_(D), "is malformed: ", Error, "\n"), Out).
+
+% the message sent to the user when there is a validation error
+user_message_invalid_manifest(Error):-
+    current_output(Out),
+    phrase_to_stream(("The installation failed; cause:\n\t", Error, "\n"), Out).
+
 % Is valid when there is 0 instance and the field is optional
 has_a_field([], _, _, true, success).
 
 % Is not valid when there is 0 instance and the field is not optional
 has_a_field([], FieldName, PredicateForm, false, error(Es)):-
-    phrase(format_("the '~s' of the package is not defined or does not have the a predicate of the form '~s'", [FieldName, PredicateForm]), Es).
+    phrase(format_("the '~s' of the package is not defined or does not have the a predicate of the form '~s'", [FieldName, PredicateForm]), Es),
+    user_message_invalid_manifest(Es).
 
 % Is valid when there is one instance of the field and the field value has the correct type
 has_a_field([_], _, _, _, success).
 
 % Is not valid when there are multiple instances of the field
 has_a_field([_,_|_], FieldName, _, _, error(Es)):-
-     phrase(format_("the package has multiple '~s'", [FieldName]), Es).
+     phrase(format_("the package has multiple '~s'", [FieldName]), Es),
+     user_message_invalid_manifest(Es).
 
 has_valid_name(Manifest, Result):-
     phrase(pattern_in_list(Manifest, name_t), S),
