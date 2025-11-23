@@ -25,7 +25,11 @@ license_valid_path_t([license(name(_))], Result1, Result1).
 license_valid_path_t([license(name(_), path(P))], Result1, Result2):-
     if_(file_exists_t(P),
         (Result2 = Result1),
-        (Result2 = error("the path of the license is not valid"))
+        (
+          Err = "the path of the license is not valid",
+          Result2 = error(Err),
+          user_message_invalid_manifest(Err)
+        )
     ).
 
 license_t(X, T) :-
