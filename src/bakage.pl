@@ -126,10 +126,6 @@ scryer_path(ScryerPath) :-
         append([RootChars, "/scryer_libs"], ScryerPath)
     ).
 
-% the message sent to the user when a dependency is malformed
-user_message_malformed_dependency(D, Error):-
-    current_output(Out),
-    phrase_to_stream((portray_clause_(D), "is malformed: ", Error, "\n"), Out).
 
 % A prolog file knowledge base represented as a list of terms
 prolog_kb_list(Stream) --> {read(Stream, Term), dif(Term, end_of_file)}, [Term], prolog_kb_list(Stream).
