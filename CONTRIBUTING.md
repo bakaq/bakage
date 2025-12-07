@@ -8,7 +8,7 @@ You can just use `nix develop` or [`direnv`](https://direnv.net/) with the provi
 ### Non-Nix
 
 You will need [Scryer Prolog](https://github.com/mthom/scryer-prolog) `0.10`,
-[just](https://github.com/casey/just) and git.
+[just](https://github.com/casey/just), [shellcheck](https://www.shellcheck.net/), and git.
 
 ## Running the tests
 
